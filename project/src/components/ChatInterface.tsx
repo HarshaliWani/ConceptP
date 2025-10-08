@@ -1,61 +1,48 @@
 import React, { useState } from 'react';
 import { Send, Bot, User, Mic } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { TeacherRequest, TeacherResponse } from '../types/api';
+
+interface RelevantTopic {
+  unit: string;
+  topic: string;
+  unit_number: number;
+}
 
 interface Message {
   id: string;
-  type: 'user' | 'ai';
+  type: 'user' | 'ai' | 'system';
   content: string;
   timestamp: Date;
+  topics?: RelevantTopic[];
 }
 
 interface ChatInterfaceProps {
   onQuizGenerated: (quiz: any) => void;
+  learningPreferences: {
+    subject: string;
+    topic: string;
+    hobby: string;
+  };
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ onQuizGenerated }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ onQuizGenerated, learningPreferences }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      type: 'ai',
-      content: "Hello! I'm ConceptPilot, your AI educational tutor. Ask me anything you'd like to learn about - I can explain concepts, provide examples, and create quizzes to help you master the material!",
+      type: 'system',
+      content: "Welcome to your Physics Class! I'm your AI tutor for Maharashtra State Board 11th Grade Physics. Feel free to ask about any physics topic - I'll help you understand how it connects to your syllabus!",
       timestamp: new Date()
     }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isListening, setIsListening] = useState(false);
 
-  const sampleAIResponses = [
-    {
-      content: "Great question about photosynthesis! Let me break this down for you:\n\n**What is Photosynthesis?**\nPhotosynthesis is the process by which plants convert sunlight, water, and carbon dioxide into glucose (sugar) and oxygen. Think of it as nature's way of cooking food using sunlight as the energy source.\n\n**Real-life Example:**\nImagine your car's solar panels charging the battery - plants do something similar! The green leaves act like solar panels, capturing sunlight to power the 'cooking' process that creates food for the plant.\n\n**The Formula:**\n6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂\n\nThis process happens in the chloroplasts, tiny green factories inside plant cells!",
-      quiz: {
-        question: "What are the main inputs needed for photosynthesis?",
-        options: [
-          "Sunlight, water, and carbon dioxide",
-          "Oxygen, glucose, and chlorophyll", 
-          "Nitrogen, phosphorus, and potassium",
-          "Heat, pressure, and minerals"
-        ],
-        correct: 0,
-        explanation: "Photosynthesis requires sunlight (energy), water (H₂O), and carbon dioxide (CO₂) to produce glucose and oxygen."
-      }
-    },
-    {
-      content: "Let me explain gravity in a way that's easy to understand!\n\n**What is Gravity?**\nGravity is the force that attracts objects with mass toward each other. The more massive an object, the stronger its gravitational pull.\n\n**Sports Example:**\nWhen you shoot a basketball, gravity is what brings the ball back down to the court. If you're on the Moon (which has less mass than Earth), the same shot would go much higher and farther because the Moon's gravity is weaker!\n\n**Car Example:**\nWhen you drive down a steep hill, gravity helps accelerate your car downward. That's why you need to use your brakes to control your speed - you're fighting against gravity's pull.\n\n**Fun Fact:**\nEverything falls at the same rate in a vacuum - a feather and a hammer would hit the ground at the same time on the Moon!",
-      quiz: {
-        question: "Why do objects fall faster on Earth than on the Moon?",
-        options: [
-          "Earth has stronger gravity due to its larger mass",
-          "The Moon has no atmosphere",
-          "Earth spins faster than the Moon",
-          "Objects don't actually fall faster on Earth"
-        ],
-        correct: 0,
-        explanation: "Earth has much more mass than the Moon, creating a stronger gravitational field that pulls objects down with greater force."
-      }
-    }
-  ];
 
-  const handleSendMessage = () => {
+
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
     const userMessage: Message = {
@@ -68,23 +55,59 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onQuizGenerated }) => {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
-    // Simulate AI response
-    setTimeout(() => {
-      const randomResponse = sampleAIResponses[Math.floor(Math.random() * sampleAIResponses.length)];
+    try {
+      const request: TeacherRequest = {
+        topic: learningPreferences.topic || "general",
+        hobby: learningPreferences.hobby || "general",
+        question: inputValue
+      };
+
+      const response = await fetch('http://localhost:3000/ask-teacher', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request)
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data: TeacherResponse = await response.json();
+
+      // Create AI response message
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: randomResponse.content,
-        timestamp: new Date()
+        content: data.reply,
+        timestamp: new Date(),
+        topics: data.relevant_topics
       };
 
       setMessages(prev => [...prev, aiMessage]);
       
-      // Generate quiz after AI response
-      setTimeout(() => {
-        onQuizGenerated(randomResponse.quiz);
-      }, 1000);
-    }, 1000);
+      // Generate a contextual quiz if specific topics were discussed
+      if (data.relevant_topics && data.relevant_topics.length > 0) {
+        const topic = data.relevant_topics[0].topic;
+        const quiz = {
+          question: `Quick check on ${topic}:`,
+          options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+          correct: 0,
+          explanation: "Let's check your understanding of this concept"
+        };
+        onQuizGenerated(quiz);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'system',
+        content: "Sorry, I encountered an error while processing your request. Please try again.",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -119,14 +142,53 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onQuizGenerated }) => {
             <div
               className={`max-w-3xl px-4 py-3 rounded-2xl ${
                 message.type === 'user'
-                  ? 'bg-blue-500 text-white ml-auto'
-                  : 'bg-gray-100 text-gray-900'
+                  ? 'bg-blue-400 text-white ml-auto shadow-md'
+                  : 'bg-white border border-gray-200 text-gray-800 shadow-sm'
               }`}
             >
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                {message.content}
+              <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-900 prose-strong:text-gray-900 dark:prose-invert">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
+                  components={{
+                    // Override how code blocks are rendered
+                    code: ({node, inline, className, children, ...props}) => {
+                      if (inline) {
+                        return <code className="bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-600 rounded px-1 font-mono text-sm" {...props}>{children}</code>
+                      }
+                      return (
+                        <pre className="bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-600 rounded-lg p-4 overflow-x-auto shadow-inner">
+                          <code className="font-mono text-sm" {...props}>{children}</code>
+                        </pre>
+                      )
+                    },
+                    // Override how links are rendered
+                    a: ({node, children, ...props}) => (
+                      <a className="text-blue-500 hover:text-blue-600" {...props}>{children}</a>
+                    ),
+                    // Override how lists are rendered
+                    ul: ({node, children, ...props}) => (
+                      <ul className="list-disc list-inside my-2" {...props}>{children}</ul>
+                    ),
+                    ol: ({node, children, ...props}) => (
+                      <ol className="list-decimal list-inside my-2" {...props}>{children}</ol>
+                    ),
+                    // Override how headings are rendered
+                    h1: ({node, children, ...props}) => (
+                      <h1 className="text-2xl font-bold mt-6 mb-4" {...props}>{children}</h1>
+                    ),
+                    h2: ({node, children, ...props}) => (
+                      <h2 className="text-xl font-bold mt-5 mb-3" {...props}>{children}</h2>
+                    ),
+                    h3: ({node, children, ...props}) => (
+                      <h3 className="text-lg font-bold mt-4 mb-2" {...props}>{children}</h3>
+                    ),
+                  }}
+                >
+                  {message.content}
+                </ReactMarkdown>
               </div>
-              <div className={`text-xs mt-2 ${message.type === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
+              <div className={`text-xs mt-2 ${message.type === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>
                 {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>

@@ -1,0 +1,149 @@
+{
+  "subject": "Physics",
+  "grade": 11,
+  "board": "Maharashtra State Board",
+  "units": [
+    {
+      "unit": 1,
+      "title": "Physical World and Measurement",
+      "topics": [
+        "Physics - Scope and excitement",
+        "Physics - Technology and Society",
+        "Fundamental Forces in nature",
+        "Nature of physical laws",
+        "Measurement of physical quantities",
+        "Units and measurements",
+        "Accuracy, precision of instruments and errors in measurement",
+        "Significant figures",
+        "Dimensions of physical quantities",
+        "Dimensional analysis and its applications"
+      ]
+    },
+    {
+      "unit": 2,
+      "title": "Kinematics",
+      "topics": [
+        "Frame of reference",
+        "Motion in a straight line",
+        "Position-time graph",
+        "Speed and velocity",
+        "Acceleration",
+        "Kinematics equations for uniformly accelerated motion",
+        "Relative velocity",
+        "Motion in a plane",
+        "Projectile motion",
+        "Uniform circular motion"
+      ]
+    },
+    {
+      "unit": 3,
+      "title": "Laws of Motion",
+      "topics": [
+        "Force and inertia",
+        "Newton's first law of motion",
+        "Newton's second law of motion",
+        "Newton's third law of motion",
+        "Common forces in mechanics",
+        "Friction",
+        "Laws of friction",
+        "Rolling friction",
+        "Lubrication",
+        "Inertial and non-inertial frames"
+      ]
+    },
+    {
+      "unit": 4,
+      "title": "Work, Energy and Power",
+      "topics": [
+        "Work done by a constant force and variable force",
+        "Kinetic energy",
+        "Work-energy theorem",
+        "Potential energy",
+        "Conservation of mechanical energy",
+        "Conservative and non-conservative forces",
+        "Power",
+        "Collision in one dimension",
+        "Elastic and inelastic collision"
+      ]
+    },
+    {
+      "unit": 5,
+      "title": "Rotational Motion",
+      "topics": [
+        "Centre of mass of a two-particle system",
+        "Centre of mass of a rigid body",
+        "Basic concepts of rotational motion",
+        "Moment of inertia",
+        "Theorems of perpendicular and parallel axes",
+        "Dynamics of rotational motion about a fixed axis",
+        "Angular momentum",
+        "Conservation of angular momentum",
+        "Rolling motion",
+        "Moment of inertia for simple geometries"
+      ]
+    },
+    {
+      "unit": 6,
+      "title": "Gravitation",
+      "topics": [
+        "Universal law of gravitation",
+        "Acceleration due to gravity",
+        "Variation with altitude and depth",
+        "Gravitational potential energy",
+        "Gravitational potential",
+        "Escape velocity",
+        "Orbital velocity",
+        "Geostationary satellites",
+        "Kepler's laws of planetary motion"
+      ]
+    },
+    {
+      "unit": 7,
+      "title": "Properties of Bulk Matter",
+      "topics": [
+        "Elastic behaviour of solids",
+        "Hooke's law",
+        "Pressure in fluids",
+        "Pascal's law",
+        "Buoyancy",
+        "Archimedes' principle",
+        "Surface energy and surface tension",
+        "Viscosity",
+        "Stokes' law",
+        "Terminal velocity"
+      ]
+    },
+    {
+      "unit": 8,
+      "title": "Thermodynamics",
+      "topics": [
+        "Thermal equilibrium",
+        "Temperature and heat",
+        "Heat, work and internal energy",
+        "First law of thermodynamics",
+        "Second law of thermodynamics",
+        "Reversible and irreversible processes",
+        "Heat engines and refrigerators",
+        "Carnot cycle",
+        "Carnot engine",
+        "Efficiency of heat engines"
+      ]
+    },
+    {
+      "unit": 9,
+      "title": "Oscillations and Waves",
+      "topics": [
+        "Periodic motion",
+        "Simple harmonic motion",
+        "Simple harmonic oscillations",
+        "Energy in SHM",
+        "Wave motion",
+        "Longitudinal and transverse waves",
+        "Progressive waves",
+        "Principle of superposition",
+        "Standing waves",
+        "Beats"
+      ]
+    }
+  ]
+}

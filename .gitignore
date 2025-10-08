@@ -21,6 +21,9 @@ build/
 *.swp
 *.swo
 *~
+__pycache__/
+venv/
+env/
 
 # OS
 .DS_Store
